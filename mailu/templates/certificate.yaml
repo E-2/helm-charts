@@ -1,3 +1,4 @@
+{{- if .Values.certmanager.enabled }}
 # This is the definition of the required ssl certificate for the mail system
 # It will be issued by cert-manager
 
@@ -16,3 +17,4 @@ spec:
   issuerRef:
     kind: {{ .Values.certmanager.issuerType }}
     name: {{ .Values.certmanager.issuerName }}
+{{- end }}
