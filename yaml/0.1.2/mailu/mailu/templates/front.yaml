@@ -167,14 +167,5 @@ spec:
           periodSeconds: 10
           failureThreshold: 1
           timeoutSeconds: 5
-      volumes:
-        - name: certs
-          secret:
-            items:
-              - key: tls.crt
-                path: cert.pem
-              - key: tls.key
-                path: key.pem
-            secretName: mailu-certificates
       restartPolicy: Always
       terminationGracePeriodSeconds: 60

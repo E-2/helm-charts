@@ -13,8 +13,7 @@ metadata:
     component: admin
 spec:
   tls:
-  - secretName: mailu-certificates
-    hosts:
+  - hosts:
     - "mail.example.com"
     - "imap.example.com"
   rules:
