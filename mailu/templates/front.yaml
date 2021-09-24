@@ -44,9 +44,11 @@ spec:
       - name: front
         image: {{ .Values.front.image.repository }}:{{ default .Values.mailuVersion .Values.front.image.tag }}
         imagePullPolicy: Always
+{{- if .Values.ingress.secretName }}
         volumeMounts:
           - name: certs
             mountPath: /certs
+{{- end }}
         env:
           - name: LOG_LEVEL
             value: {{ default .Values.logLevel .Values.front.logLevel }}
