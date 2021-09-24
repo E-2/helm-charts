@@ -70,9 +70,6 @@ spec:
       - name: front
         image: mailu/nginx:master
         imagePullPolicy: Always
-        volumeMounts:
-          - name: certs
-            mountPath: /certs
         env:
           - name: LOG_LEVEL
             value: WARNING
