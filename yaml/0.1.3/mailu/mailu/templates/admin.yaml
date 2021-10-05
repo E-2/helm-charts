@@ -98,10 +98,10 @@ spec:
         resources:
           limits:
             cpu: 500m
-            memory: 500Mi
+            memory: 512Mi
           requests:
-            cpu: 500m
-            memory: 500Mi
+            cpu: 100m
+            memory: 256Mi
         livenessProbe:
           httpGet:
             path: /ui/login
