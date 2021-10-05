@@ -137,10 +137,10 @@ admin:
     # tag: master
   resources:
     requests:
-      memory: 500Mi
-      cpu: 500m
+      memory: 256Mi
+      cpu: 100m
     limits:
-      memory: 500Mi
+      memory: 512Mi
       cpu: 500m
   podAnnotations: {}
 
@@ -151,7 +151,7 @@ redis:
   resources:
     requests:
       memory: 200Mi
-      cpu: 100m
+      cpu: 50m
     limits:
       memory: 300Mi
       cpu: 200m
@@ -164,10 +164,10 @@ postfix:
     # tag: master
   resources:
     requests:
-      memory: 2Gi
-      cpu: 500m
+      memory: 128Mi
+      cpu: 100m
     limits:
-      memory: 2Gi
+      memory: 512Mi
       cpu: 500m
 
 dovecot:
@@ -179,10 +179,10 @@ dovecot:
     # tag: master
   resources:
     requests:
-      memory: 500Mi
-      cpu: 500m
+      memory: 128Mi
+      cpu: 100m
     limits:
-      memory: 500Mi
+      memory: 512Mi
       cpu: 500m
   # enable dovecot overrides
   # overrides:
@@ -203,7 +203,7 @@ rspamd:
   resources:
     requests:
       memory: 100Mi
-      cpu: 100m
+      cpu: 50m
     limits:
       memory: 500Mi
       cpu: 600m
@@ -217,10 +217,10 @@ clamav:
     # tag: master
   resources:
     requests:
-      memory: 1Gi
-      cpu: 1000m
+      memory: 256Mi
+      cpu: 100m
     limits:
-      memory: 2Gi
+      memory: 1Gi
       cpu: 1000m
 
 roundcube:
