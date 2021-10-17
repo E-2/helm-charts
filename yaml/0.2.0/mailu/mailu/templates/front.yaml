@@ -1,0 +1,238 @@
+---
+# Source: mailu/templates/front.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailu-front-svc
+  labels:
+    app: mailu
+    component: front
+spec:
+  selector:
+    app: mailu
+    component: front
+  ports:
+  - name: pop3
+    port: 110
+    protocol: TCP
+    appProtocol: tcp
+  - name: pop3s
+    port: 995
+    protocol: TCP
+    appProtocol: tcp
+  - name: imap
+    port: 143
+    protocol: TCP
+    appProtocol: tcp
+  - name: imaps
+    port: 993
+    protocol: TCP
+    appProtocol: tcp
+  - name: smtp
+    port: 25
+    protocol: TCP
+    appProtocol: smtp
+  - name: smtps
+    port: 465
+    protocol: TCP
+    appProtocol: tcp
+  - name: smtpd
+    port: 587
+    protocol: TCP
+    appProtocol: tcp
+  - name: smtp-auth
+    port: 10025
+    protocol: TCP
+    appProtocol: tcp
+  - name: imap-auth
+    port: 10143
+    protocol: TCP
+    appProtocol: tcp
+  - name: http
+    port: 80
+    protocol: TCP
+    appProtocol: http
+
+
+#---
+#kind: VirtualService
+#apiVersion: networking.istio.io/v1beta1
+#metadata:
+#  name: mailu-vs
+#spec:
+#  hosts:
+#    - mailu-front
+#  gateways:
+#    - mesh
+#  http:
+#    - name: 'mailu-admin-redirect'
+#      match:
+#        - port: 80
+#        - uri:
+#            exact: /admin
+#      redirect:
+#        uri: /admin/ui
+#        redirectCode: 301
+#    - name: 'mailu-admin-ui'
+#      match:
+#        - port: 80
+#        - uri:
+#            prefix: /admin/ui
+#        - uri:
+#            prefix: /admin/static
+#      route:
+#        - destination:
+#            host: mailu-admin
+#      headers:
+#        request:
+#          set:
+#            X-Forwarded-Prefix: /admin
+##            Host: $http_host;
+##            X-Real-IP: $remote_addr;
+##            X-Forwarded-For: $proxy_add_x_forwarded_for;
+##            X-Forwarded-Proto: $proxy_x_forwarded_proto;
+#            X-Frame-Options: 'SAMEORIGIN'
+#            X-Content-Type-Options: 'nosniff'
+#            X-Permitted-Cross-Domain-Policies: 'none'
+#            X-XSS-Protection: '1; mode=block'
+#            Referrer-Policy: 'same-origin'
+#    - name: 'mailu-webmail'
+#      match:
+#        - port: 80
+#        - uri:
+#            prefix: /
+#    - name: 'mailu-auth'
+#      match:
+#        - port: 8000
+#          uri:
+#            prefix: /
+##          authority:
+##            exact: '127.0.0.1'
+#      rewrite:
+#        uri: /internal
+#      route:
+#        - destination:
+#            host: mailu-admin
+#
+#
+#  tcp:
+#    - match:
+#        - port: 25
+#
+---
+# Source: mailu/templates/front.yaml
+# This file is derived from https://github.com/Mailu/Mailu/blob/master/docs/kubernetes/mailu/front.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailu-front
+spec:
+  selector:
+    matchLabels:
+      app: mailu
+      component: front
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 0
+  template:
+    metadata:
+      labels:
+        app: mailu
+        component: front
+    spec:
+      containers:
+      - name: front
+        image: mailu/nginx:master
+        imagePullPolicy: Always
+        env:
+          - name: LOG_LEVEL
+            value: WARNING
+          - name: KUBERNETES_INGRESS
+            value: "true"
+          - name: TLS_FLAVOR
+            value: cert
+          - name: HOSTNAMES
+            value: "mail.example.com,imap.example.com"
+          - name: ADMIN_ADDRESS
+            value: mailu-admin.default.svc.cluster.local
+          - name: ANTISPAM_WEBUI_ADDRESS
+            value: mailu-rspamd.default.svc.cluster.local:11334
+          - name: WEBMAIL
+            value: roundcube
+          - name: WEBMAIL_ADDRESS
+            value: mailu-roundcube.default.svc.cluster.local
+          - name: MESSAGE_SIZE_LIMIT
+            value: "52428800"
+          - name: WEB_WEBMAIL
+            value: "/"
+          - name: WEBDAV
+            value: none
+          - name: WEBDAV_ADDRESS
+            value: localhost
+          - name: ADMIN
+            value: "true"
+          - name: WEB_ADMIN
+            value: "/admin"
+          - name: SUBNET
+            value: 10.42.0.0/16
+        ports:
+          - name: pop3
+            containerPort: 110
+            protocol: TCP
+          - name: pop3s
+            containerPort: 995
+            protocol: TCP
+          - name: imap
+            containerPort: 143
+            protocol: TCP
+          - name: imaps
+            containerPort: 993
+            protocol: TCP
+          - name: smtp
+            containerPort: 25
+            protocol: TCP
+          - name: smtps
+            containerPort: 465
+            protocol: TCP
+          - name: smtp-auth
+            containerPort: 10025
+            protocol: TCP
+          - name: imap-auth
+            containerPort: 10143
+            protocol: TCP
+          - name: smtpd
+            containerPort: 587
+            protocol: TCP
+          - name: auth
+            containerPort: 8000
+            protocol: TCP
+          - name: http
+            containerPort: 80
+            protocol: TCP
+          
+        resources:
+          limits:
+            cpu: 200m
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          periodSeconds: 5
+          failureThreshold: 30
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          periodSeconds: 10
+          failureThreshold: 1
+          timeoutSeconds: 5
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 60
