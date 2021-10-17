@@ -181,35 +181,112 @@ spec:
   - name: pop3
     port: 110
     protocol: TCP
+    appProtocol: tcp
   - name: pop3s
     port: 995
     protocol: TCP
+    appProtocol: tcp
   - name: imap
     port: 143
     protocol: TCP
+    appProtocol: tcp
   - name: imaps
     port: 993
     protocol: TCP
+    appProtocol: tcp
   - name: smtp
     port: 25
     protocol: TCP
+    appProtocol: smtp
   - name: smtps
     port: 465
     protocol: TCP
+    appProtocol: tcp
   - name: smtpd
     port: 587
     protocol: TCP
+    appProtocol: tcp
   - name: smtp-auth
     port: 10025
     protocol: TCP
+    appProtocol: tcp
   - name: imap-auth
     port: 10143
     protocol: TCP
+    appProtocol: tcp
   - name: http
     port: 80
     protocol: TCP
+    appProtocol: http
 {{ if not .Values.ingress.externalIngress }}
   - name: https
     port: 443
     protocol: TCP
+    appProtocol: https
 {{end}}
+
+#---
+#kind: VirtualService
+#apiVersion: networking.istio.io/v1beta1
+#metadata:
+#  name: {{ include "mailu.fullname" . }}-vs
+#spec:
+#  hosts:
+#    - {{ include "mailu.fullname" . }}-front
+#  gateways:
+#    - mesh
+#  http:
+#    - name: 'mailu-admin-redirect'
+#      match:
+#        - port: 80
+#        - uri:
+#            exact: /admin
+#      redirect:
+#        uri: /admin/ui
+#        redirectCode: 301
+#    - name: 'mailu-admin-ui'
+#      match:
+#        - port: 80
+#        - uri:
+#            prefix: /admin/ui
+#        - uri:
+#            prefix: /admin/static
+#      route:
+#        - destination:
+#            host: {{ include "mailu.fullname" . }}-admin
+#      headers:
+#        request:
+#          set:
+#            X-Forwarded-Prefix: /admin
+##            Host: $http_host;
+##            X-Real-IP: $remote_addr;
+##            X-Forwarded-For: $proxy_add_x_forwarded_for;
+##            X-Forwarded-Proto: $proxy_x_forwarded_proto;
+#            X-Frame-Options: 'SAMEORIGIN'
+#            X-Content-Type-Options: 'nosniff'
+#            X-Permitted-Cross-Domain-Policies: 'none'
+#            X-XSS-Protection: '1; mode=block'
+#            Referrer-Policy: 'same-origin'
+#    - name: 'mailu-webmail'
+#      match:
+#        - port: 80
+#        - uri:
+#            prefix: /
+#    - name: 'mailu-auth'
+#      match:
+#        - port: 8000
+#          uri:
+#            prefix: /
+##          authority:
+##            exact: '127.0.0.1'
+#      rewrite:
+#        uri: /internal
+#      route:
+#        - destination:
+#            host: {{ include "mailu.fullname" . }}-admin
+#
+#
+#  tcp:
+#    - match:
+#        - port: 25
+#
