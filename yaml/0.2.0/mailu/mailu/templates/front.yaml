@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mailu-front-svc
+  name: mailu-front
   labels:
     app: mailu
     component: front
