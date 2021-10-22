@@ -43,10 +43,12 @@ spec:
       - name: front
         image: {{ .Values.front.image.repository }}:{{ default .Values.mailuVersion .Values.front.image.tag }}
         imagePullPolicy: Always
-        volumeMounts:
-          - name: conf
-            mountPath: /etc/nginx
+        command:
+          - sh
+          - -c
+          - sed -i '/.*http {/a proxy_http_version 1.1;' /conf/nginx.conf && /start.py
 {{- if .Values.ingress.secretName }}
+        volumeMounts:
           - name: certs
             mountPath: /certs
 {{- end }}
@@ -151,14 +153,8 @@ spec:
           periodSeconds: 10
           failureThreshold: 1
           timeoutSeconds: 5
-      volumes:
-        - name: conf
-          configMap:
-            name: {{ include "mailu.fullname" . }}-front-conf
-            items:
-            - key: nginx.conf
-              path: nginx.conf
 {{- if .Values.ingress.secretName }}
+      volumes:
         - name: certs
           secret:
             items:
