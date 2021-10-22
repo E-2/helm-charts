@@ -147,6 +147,9 @@ spec:
       - name: front
         image: mailu/nginx:master
         imagePullPolicy: Always
+        command:
+          - sh -c
+          - sed -i '/.*http {/a proxy_http_version 1.1;' /conf/nginx.conf && /start.py
         env:
           - name: LOG_LEVEL
             value: WARNING
